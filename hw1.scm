@@ -78,7 +78,7 @@
 	; (* t c)
 	(if (and (list? exp) (= (length exp) 3)
 		(not (is_rule_10 exp)) (not (is_rule_11 exp))
-		(not (is_rule_13 exp)))
+		(not (is_rule_13 exp)) (not (is_rule_15 exp)))
         (let
             (
                 (op (car exp))
@@ -417,7 +417,7 @@
 (define (is_rule_14 exp)
 	; (* c (+ t1 t2))
     (if (and (list? exp) (= (length exp) 3)
-             (list? (caddr exp)) (= (length (caddr exp)) 3))
+			 (list? (caddr exp)) (= (length (caddr exp)) 3))
 		(let
 			(
 				(op (car exp))
@@ -573,7 +573,7 @@
 		(let
 			(
 				(op (car exp))
-				(t1 (cadr exp)
+				(t1 (cadr exp))
 				(op2 (car (caddr exp)))
 				(t2 (cadr (caddr exp)))
 				(t3 (caddr (caddr exp)))
@@ -649,7 +649,7 @@
 		(let
 			(
 				(op (car exp))
-				(t1 (cadr exp)
+				(t1 (cadr exp))
 				(op2 (car (caddr exp)))
 				(t2 (cadr (caddr exp)))
 				(t3 (caddr (caddr exp)))
@@ -708,7 +708,7 @@
 )
 
 (newline)
-;(define result_1 (simplify '(+ 5 9)))
+;(define result_1 (simplify '(+ 3 9)))
 ;(define result_2 (simplify '(+ (+ 1 2) 3)))
 ;(define result_3 (simplify '(* 6 4)))
 ;(define result_4 (simplify '(* (+ 1 1) 10)))
@@ -722,6 +722,9 @@
 ;(define result_12 (simplify '(* 3 (+ 5 (* 3 5)))))
 ;(define result_13 (simplify '(* (+ (- 5 2) (+ 3 1)) 3)))
 ;(define result_14 (simplify '(* 2 (+ (+ 3 5) (- 5 2)))))
-
-
-
+;(define result_15 (simplify '(* (- (+ 3 5) (* 2 3)) 6)))
+;(define result_16 (simplify '(* 3 (- (+ 'a 3) (+ 4 1)))))
+;(define result_17 (simplify '(* (+ (+ 3 5) (- 2 1)) (* 5 2))))
+;(define result_18 (simplify '(* (+ 3 2) (+ (* 5 3) (- 12 7)))))
+;(define result_19 (simplify '(* (- (+ 3 5) (- 2 1)) (* 5 2))))
+;(define result_20 (simplify '(* (+ 3 2) (- (* 5 3) (- 12 7)))))

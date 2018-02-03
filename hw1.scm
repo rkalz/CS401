@@ -77,8 +77,9 @@
 (define (is_rule_4 exp)
 	; (* t c)
 	(if (and (list? exp) (= (length exp) 3)
-		(not (is_rule_10 exp)) (not (is_rule_11 exp))
-		(not (is_rule_13 exp)) (not (is_rule_15 exp)))
+		(not (is_rule_7 exp)) (not (is_rule_10 exp))
+		(not (is_rule_11 exp)) (not (is_rule_13 exp))
+		(not (is_rule_15 exp)))
         (let
             (
                 (op (car exp))
@@ -644,7 +645,7 @@
 
 (define (is_rule_20 exp)
 	; (* t1 (- t2 t3))
-    (if (and (list? exp) (= (length exp) 3)
+    	(if (and (list? exp) (= (length exp) 3)
              (list? (caddr exp)) (= (length (caddr exp)) 3))
 		(let
 			(
@@ -662,8 +663,8 @@
 				(list? t3)
 			)
 		)
-        #f
-    )
+        	#f
+    	)
 )
 
 (define (perform_rule_20 exp)
@@ -691,18 +692,18 @@
         ((is_rule_6 exp) (perform_rule_6 exp))
         ((is_rule_7 exp) (perform_rule_7 exp))
         ((is_rule_8 exp) (perform_rule_8 exp))
-		((is_rule_9 exp) (perform_rule_9 exp))
-		((is_rule_10 exp) (perform_rule_10 exp))
-		((is_rule_11 exp) (perform_rule_11 exp))
-		((is_rule_12 exp) (perform_rule_12 exp))
-		((is_rule_13 exp) (perform_rule_13 exp))
-		((is_rule_14 exp) (perform_rule_14 exp))
-		((is_rule_15 exp) (perform_rule_15 exp))
-		((is_rule_16 exp) (perform_rule_16 exp))
-		((is_rule_17 exp) (perform_rule_17 exp))
-		((is_rule_18 exp) (perform_rule_18 exp))
-		((is_rule_19 exp) (perform_rule_19 exp))
-		((is_rule_20 exp) (perform_rule_20 exp))
+	((is_rule_9 exp) (perform_rule_9 exp))
+	((is_rule_10 exp) (perform_rule_10 exp))
+	((is_rule_11 exp) (perform_rule_11 exp))
+	((is_rule_12 exp) (perform_rule_12 exp))
+	((is_rule_13 exp) (perform_rule_13 exp))
+	((is_rule_14 exp) (perform_rule_14 exp))
+	((is_rule_15 exp) (perform_rule_15 exp))
+	((is_rule_16 exp) (perform_rule_16 exp))
+	((is_rule_17 exp) (perform_rule_17 exp))
+	((is_rule_18 exp) (perform_rule_18 exp))
+	((is_rule_19 exp) (perform_rule_19 exp))
+	((is_rule_20 exp) (perform_rule_20 exp))
         (else exp)
     )
 )

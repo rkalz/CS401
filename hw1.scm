@@ -9,8 +9,8 @@
             )
             (and
                 (equal? op '+)
-                (not (list? c1))
-                (not (list? c2))
+                (number? c1)
+                (number? c2)
             )
         )
         #f
@@ -20,7 +20,7 @@
 (define (perform_rule_1 exp)
 	; c1 + c2
 	(display "rule 1") (newline)
-    (+ (cadr exp) (caddr exp))
+	(+ (cadr exp) (caddr exp))
 )
 
 (define (is_rule_2 exp)
@@ -35,8 +35,8 @@
             )
             (and
                 (equal? op '+)
-                (list? t)
-                (not (list? c))
+                (not (number? t))
+                (number? c)
             )
         )
         #f
@@ -60,8 +60,8 @@
             )
             (and
                 (equal? op '*)
-                (not (list? c1))
-                (not (list? c2))
+                (number? c1)
+                (number? c2)
             )
         )
         #f
@@ -88,8 +88,8 @@
             )
             (and
                 (equal? op '*)
-                (list? t)
-                (not (list? c))
+                (not (number? t))
+                (number? c)
             )
         )
         #f
@@ -113,8 +113,8 @@
             )
             (and
                 (equal? op '-)
-                (not (list? c1))
-                (not (list? c2))
+                (number? c1)
+                (number? c2)
             )
         )
         #f
@@ -138,8 +138,8 @@
             )
             (and
                 (equal? op '-)
-                (list? t)
-                (not (list? c))
+                (not (number? t))
+                (number? c)
             )
         )
         #f
@@ -166,10 +166,10 @@
             )
             (and
                 (equal? op '+)
-                (list? t1)
+                (not (number? t1))
                 (equal? op2 '+)
-                (list? t2)
-                (list? t3)
+                (not (number? t2))
+                (not (number? t3))
             )
         )
         #f
@@ -178,15 +178,15 @@
 
 (define (perform_rule_7 exp)
     ; (+ t1 (+ t2 t3))
-    ; (+ (+ t2 t3) t1)
+    ; (+ (+ t1 t2) t3)
     (display "rule 7") (newline)
     (define t1 (simplify (cadr exp)))
     (define l1 (caddr exp))
     (define t2 (simplify (cadr l1)))
     (define t3 (simplify (caddr l1)))
 
-    (define l2 (simplify (list '+ t2 t3)))
-    (simplify (list '+ l2 t1))
+    (define l2 (simplify (list '+ t1 t2)))
+    (simplify (list '+ l2 t3))
 )
 
 (define (is_rule_8 exp)
@@ -203,10 +203,10 @@
             )
             (and
                 (equal? op '*)
-                (list? t1)
+                (not (number? t1))
                 (equal? op2 '*)
-                (list? t2)
-                (list? t3)
+                (not (number? t2))
+                (not (number? t3))
             )
         )
         #f
@@ -215,16 +215,15 @@
 
 (define (perform_rule_8 exp)
     ; (* t1 (* t2 t3))
-	; (* (* t2 t3) t1)
+	; (* (* t1 t2) t3)
 	(display "rule 8") (newline)
     (define t1 (simplify (cadr exp)))
     (define l1 (caddr exp))
     (define t2 (simplify (cadr l1)))
     (define t3 (simplify (caddr l1)))
 
-    (define l2 (simplify (list '* t2 t3)))
-    (simplify (list '* l2 t1))
-    exp
+    (define l2 (simplify (list '* t1 t2)))
+    (simplify (list '* l2 t3))
 )
 
 (define (is_rule_9 exp)
@@ -242,9 +241,9 @@
 			(and
 				(equal? op '+)
 				(equal? op2 '+)
-				(not (list? c1))
-				(list? t)
-				(not (list? c2))
+				(number? c1)
+                (not (number? t))
+                (number? c2)
 			)
 		)
         #f
@@ -279,9 +278,9 @@
 			(and
 				(equal? op '*)
 				(equal? op2 '*)
-				(not (list? c1))
-				(list? t)
-				(not (list? c2))
+				(number? c1)
+                (not (number? t))
+                (number? c2)
 			)
 		)
         #f
@@ -316,9 +315,9 @@
 			(and
 				(equal? op '*)
 				(equal? op2 '+)
-				(not (list? c1))
-				(list? t)
-				(not (list? c2))
+				(number? c1)
+                (not (number? t))
+                (number? c2)
 			)
 		)
         #f
@@ -353,10 +352,10 @@
 			)
 			(and
 				(equal? op '*)
-				(not (list? c1))
+				(number? c1)
 				(equal? op2 '+)
-				(not (list? c2))
-				(list? t)
+				(number? c2)
+				(not (number? t))
 			)
 		)
         #f
@@ -392,9 +391,9 @@
 			(and
 				(equal? op '*)
 				(equal? op2 '+)
-				(list? t1)
-				(list? t2)
-				(not (list? c))
+				(not (number? t1))
+				(not (number? t2))
+				(number? c)
 			)
 		)
         #f
@@ -429,10 +428,10 @@
 			)
 			(and
 				(equal? op '*)
-				(not (list? c))
+				(number? c)
 				(equal? op2 '+)
-				(list? t1)
-				(list? t2)
+				(not (number? t1))
+				(not (number? t2))
 			)
 		)
         #f
@@ -468,9 +467,9 @@
 			(and
 				(equal? op '*)
 				(equal? op2 '-)
-				(list? t1)
-				(list? t2)
-				(not (list? c))
+				(not (number? t1))
+				(not (number? t2))
+				(number? c)
 			)
 		)
         #f
@@ -505,10 +504,10 @@
 			)
 			(and
 				(equal? op '*)
-				(not (list? c))
+				(number? c)
 				(equal? op2 '-)
-				(list? t1)
-				(list? t2)
+				(not (number? t1))
+				(not (number? t2))
 			)
 		)
         #f
@@ -544,9 +543,9 @@
 			(and
 				(equal? op '*)
 				(equal? op2 '+)
-				(list? t1)
-				(list? t2)
-				(list? t3)
+				(not (number? t1))
+				(not (number? t2))
+				(not (number? t3))
 			)
 		)
         #f
@@ -581,10 +580,10 @@
 			)
 			(and
 				(equal? op '*)
-				(list? t1)
+				(not (number? t1))
 				(equal? op2 '+)
-				(list? t2)
-				(list? t3)
+				(not (number? t2))
+				(not (number? t3))
 			)
 		)
         #f
@@ -620,9 +619,9 @@
 			(and
 				(equal? op '*)
 				(equal? op2 '-)
-				(list? t1)
-				(list? t2)
-				(list? t3)
+				(not (number? t1))
+				(not (number? t2))
+				(not (number? t3))
 			)
 		)
         #f
@@ -645,7 +644,7 @@
 
 (define (is_rule_20 exp)
 	; (* t1 (- t2 t3))
-    	(if (and (list? exp) (= (length exp) 3)
+    (if (and (list? exp) (= (length exp) 3)
              (list? (caddr exp)) (= (length (caddr exp)) 3))
 		(let
 			(
@@ -657,14 +656,14 @@
 			)
 			(and
 				(equal? op '*)
-				(list? t1)
+				(not (number? t1))
 				(equal? op2 '-)
-				(list? t2)
-				(list? t3)
+				(not (number? t2))
+				(not (number? t3))
 			)
 		)
-        	#f
-    	)
+        #f
+    )
 )
 
 (define (perform_rule_20 exp)
@@ -692,40 +691,44 @@
         ((is_rule_6 exp) (perform_rule_6 exp))
         ((is_rule_7 exp) (perform_rule_7 exp))
         ((is_rule_8 exp) (perform_rule_8 exp))
-	((is_rule_9 exp) (perform_rule_9 exp))
-	((is_rule_10 exp) (perform_rule_10 exp))
-	((is_rule_11 exp) (perform_rule_11 exp))
-	((is_rule_12 exp) (perform_rule_12 exp))
-	((is_rule_13 exp) (perform_rule_13 exp))
-	((is_rule_14 exp) (perform_rule_14 exp))
-	((is_rule_15 exp) (perform_rule_15 exp))
-	((is_rule_16 exp) (perform_rule_16 exp))
-	((is_rule_17 exp) (perform_rule_17 exp))
-	((is_rule_18 exp) (perform_rule_18 exp))
-	((is_rule_19 exp) (perform_rule_19 exp))
-	((is_rule_20 exp) (perform_rule_20 exp))
+		((is_rule_9 exp) (perform_rule_9 exp))
+		((is_rule_10 exp) (perform_rule_10 exp))
+		((is_rule_11 exp) (perform_rule_11 exp))
+		((is_rule_12 exp) (perform_rule_12 exp))
+		((is_rule_13 exp) (perform_rule_13 exp))
+		((is_rule_14 exp) (perform_rule_14 exp))
+		((is_rule_15 exp) (perform_rule_15 exp))
+		((is_rule_16 exp) (perform_rule_16 exp))
+		((is_rule_17 exp) (perform_rule_17 exp))
+		((is_rule_18 exp) (perform_rule_18 exp))
+		((is_rule_19 exp) (perform_rule_19 exp))
+		((is_rule_20 exp) (perform_rule_20 exp))
         (else exp)
     )
 )
 
+
+
 (newline)
-;(define result_1 (simplify '(+ 3 9)))
-;(define result_2 (simplify '(+ (+ 1 2) 3)))
-;(define result_3 (simplify '(* 6 4)))
-;(define result_4 (simplify '(* (+ 1 1) 10)))
-;(define result_5 (simplify '(- 7 5)))
-;(define result_6 (simplify '(- (* 3 2) 24)))
-;(define result_7 (simplify '(+ (+ 1 2) (+ (* 2 3) (- 5 2)))))
-;(define result_8 (simplify '(* (+ 'a 2) (* (* 2 3) (- 5 2)))))
-;(define result_9 (simplify '(+ (+ 4 (* 3 2)) 5)))
-;(define result_10 (simplify '(* (* 4 (+ 3 2)) 5)))
-;(define result_11 (simplify '(* (+ 4 (+ 3 2)) 5)))
-;(define result_12 (simplify '(* 3 (+ 5 (* 3 5)))))
-;(define result_13 (simplify '(* (+ (- 5 2) (+ 3 1)) 3)))
-;(define result_14 (simplify '(* 2 (+ (+ 3 5) (- 5 2)))))
-;(define result_15 (simplify '(* (- (+ 3 5) (* 2 3)) 6)))
-;(define result_16 (simplify '(* 3 (- (+ 'a 3) (+ 4 1)))))
-;(define result_17 (simplify '(* (+ (+ 3 5) (- 2 1)) (* 5 2))))
-;(define result_18 (simplify '(* (+ 3 2) (+ (* 5 3) (- 12 7)))))
-;(define result_19 (simplify '(* (- (+ 3 5) (- 2 1)) (* 5 2))))
-;(define result_20 (simplify '(* (+ 3 2) (- (* 5 3) (- 12 7)))))
+;(define result (simplify '(+ 3 9))) ;1
+;(define result (simplify '(+ (+ w 2) 3))) ;2
+;(define result (simplify '(* 6 4))) ;3
+;(define result (simplify '(* e 10))) ;4
+;(define result (simplify '(- 7 5))) ;5
+;(define result (simplify '(- w 24))) ;6
+;(define result (simplify '(+ a (+ b c)))) ;7
+;(define result (simplify '(* x (* y z)))) ;8
+;(define result (simplify '(+ (+ 4 a) 5))) ;9
+;(define result (simplify '(* (* 4 a) 5))) ;10
+;(define result (simplify '(* (+ 4 a) 5))) ;11
+;(define result (simplify '(* 3 (+ 5 a)))) ;12
+;(define result (simplify '(* (+ a b) 3))) ;13
+;(define result (simplify '(* 2 (+ a b)))) ;14
+;(define result (simplify '(* (- a b) 6))) ;15
+;(define result (simplify '(* 3 (- a b)))) ;16
+;(define result (simplify '(* (+ a b) c))) ;17
+;(define result (simplify '(* a (+ b c)))) ;18
+;(define result (simplify '(* (- a v) c))) ;19
+;(define result (simplify '(* a (- c b)))) ;20
+(display result)
+(quit)

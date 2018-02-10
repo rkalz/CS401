@@ -17,8 +17,8 @@ module TokenKind
     Do = 15
     By = 16
     MulOp = 17
-    Plus = 18
-    Minus = 19
+    Add = 18
+    Subtract = 19
     Factor = 20
     Multiply = 21
     Divide = 22
@@ -97,9 +97,9 @@ class Token
         when 17
             return "MulOp"
         when 18
-            return "Plus"
+            return "Add"
         when 19
-            return "Minus"
+            return "Subtract"
         when 20
             return "Factor"
         when 21
@@ -171,13 +171,9 @@ class Lexer
         return @tokens.shift()
     end
 
-    def isEmpty()
-        return @tokens.length == 0
-    end
-
 private
 
-    # All this does is generate a list of tokens, doesn't check for validity
+    # Generate a list of tokens, doesn't check for validity
     def generateTokenList()
         cur_pos = 0
         until cur_pos == @file.length do
@@ -228,48 +224,54 @@ private
                     cur_pos += 1
                 end
                 @tokens.push(Token.new(TokenKind::Integer, string))
-            when %r{[+\-*/<=;():]}
+            when /[+\-*\/<=;:()]/
+                # Symbol(s)
                 string = ""
-                while (cur_pos != @file.length && @file[cur_pos] =~ %r{[+\-*/<=;():]})
+                while (cur_pos != @file.length && @file[cur_pos] =~ /[+\-*\/<=;:()]/)
                     string << @file[cur_pos]
                     cur_pos += 1
                 end
 
-                case string
-                when "+"
-                    @tokens.push(Token.new(TokenKind::Plus, string))
-                when "-"
-                    @tokens.push(Token.new(TokenKind::Minus, string))
-                when "*"
-                    @tokens.push(Token.new(TokenKind::Multiply, string))
-                when "/"
-                    @tokens.push(Token.new(TokenKind::Divide, string))
-                when "<"
-                    @tokens.push(Token.new(TokenKind::LessThan, string))
-                when "<="
+                # <=, :=, and // are the only multicharacter tokens, rest should be read in
+                # one character at a time
+                if string == "<="
                     @tokens.push(Token.new(TokenKind::LessThanOrEqualTo, string))
-                when "="
-                    @tokens.push(Token.new(TokenKind::Equal, string))
-                when "("
-                    @tokens.push(Token.new(TokenKind::OpenParen, string))
-                when ")"
-                    @tokens.push(Token.new(TokenKind::CloseParen, string))
-                when ");"
-                    @tokens.push(Token.new(TokenKind::CloseParen, ")"))
-                    @tokens.push(Token.new(TokenKind::Semicolon, ";"))
-                when ";"
-                    @tokens.push(Token.new(TokenKind::Semicolon, string))
-                when "//"
+                elsif string == ":="
+                    @tokens.push(Token.new(TokenKind::Assign, string))
+                elsif string == "//"
                     while (cur_pos != @file.length && @file[cur_pos] != "\n")
                         string << @file[cur_pos]
                         cur_pos += 1
                     end
                     # @tokens.push(Token.new(TokenKind::Comment, string))
-                when ":="
-                    @tokens.push(Token.new(TokenKind::Assign, string))
+                else
+                    string.split('').each do |symbol|
+                        case symbol
+                        when "+"
+                            @tokens.push(Token.new(TokenKind::Add, symbol))
+                        when "-"
+                            @tokens.push(Token.new(TokenKind::Subtract, symbol))
+                        when "*"
+                            @tokens.push(Token.new(TokenKind::Multiply, symbol))
+                        when "/"
+                            @tokens.push(Token.new(TokenKind::Divide, symbol))
+                        when "<"
+                            @tokens.push(Token.new(TokenKind::LessThan, symbol))
+                        when "="
+                            @tokens.push(Token.new(TokenKind::Equal, symbol))
+                        when "("
+                            @tokens.push(Token.new(TokenKind::OpenParen, symbol))
+                        when ")"
+                            @tokens.push(Token.new(TokenKind::CloseParen, symbol))
+                        when ";"
+                            @tokens.push(Token.new(TokenKind::Semicolon, symbol))
+                        end
+                    end
                 end
-            else
+            when /\s/
                 cur_pos += 1
+            else
+                raise "Invalid character #{@file[cur_pos]}!"
             end
         end
         @tokens.push(Token.new(TokenKind::EOF, "END_OF_FILE"))
@@ -291,7 +293,7 @@ private
 
     def RaiseParsingException(expected)
         token = @lexer.nextToken()
-        raise "Expected #{expected}, got #{token.getTokenKindString()} (#{token.getTokenText()})"
+        raise "Expected #{expected}, got '#{token.getTokenText()}' (#{token.getTokenKindString()})"
     end
 
     def getProgram()
@@ -306,7 +308,7 @@ private
 
         statements.addChild(getStatement())
         if (@lexer.getTokenKind() != TokenKind::EOF)
-            statements.addChild(getTerminalToken("Semicolon", TokenKind::Semicolon))
+            statements.addChild(getTerminalToken("';'", TokenKind::Semicolon))
         end
         if (@lexer.getTokenKind() != TokenKind::EOF &&
             @lexer.getTokenKind() != TokenKind::Else &&
@@ -322,44 +324,44 @@ private
 
         if (@lexer.getTokenKind() == TokenKind::Identifier)
             statement.addChild(getTerminalToken("Identifier", TokenKind::Identifier))
-            statement.addChild(getTerminalToken("Assign", TokenKind::Assign))
+            statement.addChild(getTerminalToken("':='", TokenKind::Assign))
             statement.addChild(getAddOp())
         elsif (@lexer.getTokenKind() == TokenKind::If)
-            statement.addChild(getTerminalToken("If", TokenKind::If))
+            statement.addChild(getTerminalToken("'if'", TokenKind::If))
             statement.addChild(getLExpr())
-            statement.addChild(getTerminalToken("Then", TokenKind::Then))
+            statement.addChild(getTerminalToken("'then'", TokenKind::Then))
             statement.addChild(getStatements())
             if (@lexer.getTokenKind == TokenKind::End)
-                statement.addChild(getTerminalToken("End", TokenKind::End))
+                statement.addChild(getTerminalToken("'end'", TokenKind::End))
             elsif (@lexer.getTokenKind() == TokenKind::Else)
-                statement.addChild(getTerminalToken("Else", TokenKind::Else))
+                statement.addChild(getTerminalToken("'else'", TokenKind::Else))
                 statement.addChild(getStatements())
-                statement.addChild(getTerminalToken("End", TokenKind::End))
+                statement.addChild(getTerminalToken("'end'", TokenKind::End))
             else
-                RaiseParsingException("End or Else")
+                RaiseParsingException("'end' or 'else'")
             end
         elsif (@lexer.getTokenKind() == TokenKind::For)
-            statement.addChild(getTerminalToken("For", TokenKind::For))
+            statement.addChild(getTerminalToken("'for'", TokenKind::For))
             statement.addChild(getTerminalToken("Identifier", TokenKind::Identifier))
-            statement.addChild(getTerminalToken("From", TokenKind::From))
+            statement.addChild(getTerminalToken("'from'", TokenKind::From))
             statement.addChild(getAddOp())
-            statement.addChild(getTerminalToken("To", TokenKind::To))
+            statement.addChild(getTerminalToken("'to'", TokenKind::To))
             statement.addChild(getAddOp())
             if (@lexer.getTokenKind() == TokenKind::Do)
-                statement.addChild(getTerminalToken("Do", TokenKind::Do))
+                statement.addChild(getTerminalToken("'do'", TokenKind::Do))
                 statement.addChild(getStatements())
-                statement.addChild(getTerminalToken("End", TokenKind::End))
+                statement.addChild(getTerminalToken("'end'", TokenKind::End))
             elsif (@lexer.getTokenKind() == TokenKind::By)
-                statement.addChild(getTerminalToken("By", TokenKind::By))
+                statement.addChild(getTerminalToken("'by'", TokenKind::By))
                 statement.addChild(getAddOp())
-                statement.addChild(getTerminalToken("Do", TokenKind::Do))
+                statement.addChild(getTerminalToken("'do'", TokenKind::Do))
                 statement.addChild(getStatements())
-                statement.addChild(getTerminalToken("End", TokenKind::End))
+                statement.addChild(getTerminalToken("'end'", TokenKind::End))
             else
-                RaiseParsingException("Do or By")
+                RaiseParsingException("'do' or 'by'")
             end
         else
-            RaiseParsingException("Identifier, If, or For")
+            RaiseParsingException("Identifier, 'if', or 'for'")
         end
 
         return statement
@@ -369,11 +371,11 @@ private
         addOp = Token.new(TokenKind::AddOp, Array.new())
 
         addOp.addChild(getMulOp())
-        if (@lexer.getTokenKind() == TokenKind::Plus)
-            addOp.addChild(getTerminalToken("Plus", TokenKind::Plus))
+        if (@lexer.getTokenKind() == TokenKind::Add)
+            addOp.addChild(getTerminalToken("'+'", TokenKind::Add))
             addOp.addChild(getAddOp())
-        elsif (@lexer.getTokenKind() == TokenKind::Minus)
-            addOp.addChild(getTerminalToken("Minus", TokenKind::Minus))
+        elsif (@lexer.getTokenKind() == TokenKind::Subtract)
+            addOp.addChild(getTerminalToken("'-'", TokenKind::Subtract))
             addOp.addChild(getAddOp())
         end
 
@@ -385,10 +387,10 @@ private
 
         mulOp.addChild(getFactor())
         if (@lexer.getTokenKind() == TokenKind::Multiply)
-            mulOp.addChild(getTerminalToken("Multply", TokenKind::Multiply))
+            mulOp.addChild(getTerminalToken("'*'", TokenKind::Multiply))
             mulOp.addChild(getMulOp())
         elsif (@lexer.getTokenKind() == TokenKind::Divide)
-            mulOp.addChild(getTerminalToken("Divide", TokenKind::Divide))
+            mulOp.addChild(getTerminalToken("'/'", TokenKind::Divide))
             mulOp.addChild(getMulOp())
         end
 
@@ -403,11 +405,11 @@ private
         elsif (@lexer.getTokenKind() == TokenKind::Identifier)
             factor.addChild(getTerminalToken("Identifier", TokenKind::Identifier))
         elsif (@lexer.getTokenKind() == TokenKind::OpenParen)
-            factor.addChild(getTerminalToken("(", TokenKind::OpenParen))
+            factor.addChild(getTerminalToken("'('", TokenKind::OpenParen))
             factor.addChild(getAddOp())
-            factor.addChild(getTerminalToken(")", TokenKind::CloseParen))
+            factor.addChild(getTerminalToken("')'", TokenKind::CloseParen))
         else
-            RaiseParsingException("Integer, Identifer, or Open Paren")
+            RaiseParsingException("Integer, Identifer, or '('")
         end
 
         return factor
@@ -418,7 +420,7 @@ private
 
         lExpr.addChild(getLTerm())
         if (@lexer.getTokenKind() == TokenKind::And)
-            lExpr.addChild(getTerminalToken("And", TokenKind::And))
+            lExpr.addChild(getTerminalToken("'and'", TokenKind::And))
             lExpr.addChild(getLExpr())
         end
 
@@ -429,7 +431,7 @@ private
         lTerm = Token.new(TokenKind::LTerm, Array.new())
 
         if (@lexer.getTokenKind() == TokenKind::Not)
-            lTerm.addChild(getTerminalToken("Not", TokenKind::Not))
+            lTerm.addChild(getTerminalToken("'not'", TokenKind::Not))
         end
         lTerm.addChild(getLFactor())
 
@@ -440,9 +442,9 @@ private
         lFactor = Token.new(TokenKind::LFactor, Array.new())
 
         if (@lexer.getTokenKind() == TokenKind::True)
-            lFactor.addChild(getTerminalToken("True", TokenKind::True))
+            lFactor.addChild(getTerminalToken("'true'", TokenKind::True))
         elsif (@lexer.getTokenKind() == TokenKind::False)
-            lFactor.addChild(getTerminalToken("False", TokenKind::False))
+            lFactor.addChild(getTerminalToken("'false'", TokenKind::False))
         end
         lFactor.addChild(getRelOp())
 
@@ -454,16 +456,16 @@ private
 
         relOp.addChild(getAddOp())
         if (@lexer.getTokenKind() == TokenKind::LessThanOrEqualTo)
-            relOp.addChild(getTerminalToken("LessThanOrEqualTo", TokenKind::LessThanOrEqualTo))
+            relOp.addChild(getTerminalToken("'<='", TokenKind::LessThanOrEqualTo))
             relOp.addChild(getAddOp())
         elsif (@lexer.getTokenKind() == TokenKind::LessThan)
-            relOp.addChild(getTerminalToken("LessThan", TokenKind::LessThan))
+            relOp.addChild(getTerminalToken("'<'", TokenKind::LessThan))
             relOp.addChild(getAddOp())
         elsif (@lexer.getTokenKind() == TokenKind::Equal)
-            relOp.addChild(getTerminalToken("EqualTo", TokenKind::Equal))
+            relOp.addChild(getTerminalToken("'='", TokenKind::Equal))
             relOp.addChild(getAddOp())
         else
-            RaiseParsingException("LessThanOrEqualTo, LessThan, or EqualTo")
+            RaiseParsingException("'<=', '<', or '='")
         end
     end
 
@@ -474,8 +476,7 @@ private
             RaiseParsingException(name)
         end
     end
-
 end
 
-p = Parser.new("invalid.simpl").parse()
+p = Parser.new("valid.simpl").parse()
 puts p

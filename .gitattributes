@@ -1,3 +1,4 @@
 *.scm linguist-language=Scheme
 *.rb linguist-language=Ruby
 *.pl linguist-language=Prolog
+*.erl linguist-language=Erlang

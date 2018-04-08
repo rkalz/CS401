@@ -39,11 +39,13 @@ private:
 			count += 2;
 			lock.unlock();
 
-			std::thread a(&Function::compute, this, std::cref(a), std::cref(m), std::cref(tol), std::ref(I), std::ref(lock), std::ref(count));
-			std::thread b(&Function::compute, this, std::cref(m), std::cref(b), std::cref(tol), std::ref(I), std::ref(lock), std::ref(count));
+			std::thread left(&Function::compute, this, std::cref(a), std::cref(m), std::cref(tol), std::ref(I), std::ref(lock), 
+				std::ref(count));
+			std::thread right(&Function::compute, this, std::cref(m), std::cref(b), std::cref(tol), std::ref(I), std::ref(lock), 
+				std::ref(count));
 
-			a.join();
-			b.join();
+			left.join();
+			right.join();
 		}
 	}
 public:

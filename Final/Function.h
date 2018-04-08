@@ -39,8 +39,11 @@ private:
 			count += 2;
 			lock.unlock();
 
-			std::thread(&Function::compute, this, std::cref(a), std::cref(m), std::cref(tol), std::ref(I), std::ref(lock), std::ref(count)).join();
-			std::thread(&Function::compute, this, std::cref(m), std::cref(b), std::cref(tol), std::ref(I), std::ref(lock), std::ref(count)).join();
+			std::thread a(&Function::compute, this, std::cref(a), std::cref(m), std::cref(tol), std::ref(I), std::ref(lock), std::ref(count));
+			std::thread b(&Function::compute, this, std::cref(m), std::cref(b), std::cref(tol), std::ref(I), std::ref(lock), std::ref(count));
+
+			a.join();
+			b.join();
 		}
 	}
 public:
@@ -87,7 +90,8 @@ public:
 		std::mutex lock;
 
 		unsigned int count = 1;
-		std::thread(&Function::compute, this, std::cref(lower), std::cref(upper), std::cref(tolerance), std::ref(I), std::ref(lock), std::ref(count)).join();
+		std::thread start(&Function::compute, this, std::cref(lower), std::cref(upper), std::cref(tolerance), std::ref(I), std::ref(lock), std::ref(count));
+		start.join();
 
 		return std::pair<Number, unsigned int>(I, count);
 	}

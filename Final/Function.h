@@ -1,6 +1,13 @@
 #pragma once
 
-#include "stdafx.h"
+#include <iostream>
+#include <thread>
+#include <type_traits>
+#include <math.h>
+#include <mutex>
+#include <vector>
+#include <stack>
+#include <utility>
 
 template <typename Number>
 class Function {

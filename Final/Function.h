@@ -11,8 +11,9 @@ private:
 	Number operator()(Number input) {
 		Number output = 0;
 
-		for (int i = 0; i < args.size(); ++i) {
-			output += args[i] * pow(input, i);
+		int exp = args.size() - 1;
+		for (Number arg : args) {
+			output += arg * pow(input, exp--);
 		}
 
 		return output;

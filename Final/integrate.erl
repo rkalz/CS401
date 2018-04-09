@@ -33,6 +33,6 @@ compute(Parent, Coefs, A, B, Tol) ->
 
 value([], _, _, Output) -> Output;
 value(Coefs, Exp, Input, Output) ->
-    Coef = lists:nth(1, Coefs),
+    Coef = lists:last(Coefs),
     Add = Coef * math:pow(Input, Exp),
-    value(lists:delete(Coef, Coefs), Exp+1, Input, Output+Add).
+    value(lists:droplast(Coefs), Exp+1, Input, Output+Add).

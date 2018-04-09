@@ -4,7 +4,7 @@
 
 template <typename Number>
 class Function {
-	static_assert(std::is_integral<Number>::value || std::is_floating_point<Number>::value, "Argument must be numeric.");
+	static_assert(std::is_floating_point<Number>::value, "Function only supports floating points.");
 private:
 	std::vector<Number> args;
 
@@ -39,18 +39,13 @@ private:
 			count += 2;
 			lock.unlock();
 
-			std::thread left(&Function::compute, this, std::cref(a), std::cref(m), std::cref(tol), std::ref(I), std::ref(lock), 
-				std::ref(count));
-			std::thread right(&Function::compute, this, std::cref(m), std::cref(b), std::cref(tol), std::ref(I), std::ref(lock), 
-				std::ref(count));
-
-			left.join();
-			right.join();
+			std::thread(&Function::compute, this, std::cref(a), std::cref(m), std::cref(tol), std::ref(I), std::ref(lock), std::ref(count)).join();
+			std::thread(&Function::compute, this, std::cref(m), std::cref(b), std::cref(tol), std::ref(I), std::ref(lock), std::ref(count)).join();
 		}
 	}
 public:
-	Function(const std::vector<Number>& arguments) {
-		args = arguments;
+	Function(const std::initializer_list<Number> arguments) {
+		args = std::vector<Number>(arguments);
 	}
 
 	Number integrateSingle(const Number lower, const Number upper, const Number tolerance) {
@@ -87,15 +82,14 @@ public:
 		return I;
 	}
 
-	std::pair<Number, unsigned int> integrate(const Number lower, const Number upper, const Number tolerance) {
+	Number integrate(const Number lower, const Number upper, const Number tolerance) {
 		Number I = 0;
 		std::mutex lock;
 
 		unsigned int count = 1;
-		std::thread start(&Function::compute, this, std::cref(lower), std::cref(upper), std::cref(tolerance), std::ref(I), std::ref(lock), std::ref(count));
-		start.join();
+		std::thread(&Function::compute, this, std::cref(lower), std::cref(upper), std::cref(tolerance), std::ref(I), std::ref(lock), std::ref(count)).join();
 
-		return std::pair<Number, unsigned int>(I, count);
+		return I;
 	}
 
 };

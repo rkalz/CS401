@@ -17,7 +17,7 @@ private:
     std::vector<std::thread> threads;
     
     std::mutex output_lock;
-    std::mutex thread_request_lock;
+    std::mutex thread_lock;
     std::mutex args_lock;
     
     std::atomic_int live_threads;
@@ -54,9 +54,12 @@ private:
             I += I2;
         }
         else {
-            std::lock_guard<std::mutex> guard(thread_request_lock);
-            threads.emplace_back(&Function::compute, this, a, m, tol, std::ref(I));
-            threads.emplace_back(&Function::compute, this, m, b, tol, std::ref(I));
+            std::thread left(&Function::compute, this, a, m, tol, std::ref(I));
+            std::thread right(&Function::compute, this, m, b, tol, std::ref(I));
+            
+            std::lock_guard<std::mutex> guard(thread_lock);
+            threads.push_back(std::move(left));
+            threads.push_back(std::move(right));
         }
         --live_threads;
     }
@@ -69,7 +72,8 @@ public:
         live_threads = 0;
         started = false;
         
-        threads.emplace_back(&Function::compute, this, lower, upper, tolerance, std::ref(I));
+        std::thread start(&Function::compute, this, lower, upper, tolerance, std::ref(I));
+        threads.push_back(std::move(start));
 
         while (live_threads || !started) {
             std::this_thread::sleep_for(std::chrono::milliseconds(live_threads));

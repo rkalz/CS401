@@ -27,7 +27,7 @@ compute(Parent, Coefs, A, B, Tol) ->
         true -> Parent ! {data, I2};
         false ->
             spawn(integrate, compute, [Parent, Coefs, A, M, Tol]),
-            spawn(integrate, compute, [Parent, Coefs, M, B, Tol])
+            compute(Parent, Coefs, M, B, Tol)
     end.
 
 

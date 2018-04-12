@@ -6,9 +6,7 @@
 #include <math.h>
 #include <mutex>
 #include <vector>
-#include <utility>
 #include <chrono>
-#include <queue>
 
 template <typename Number>
 class Function {
@@ -20,7 +18,6 @@ private:
     std::mutex args_lock;
     
     std::atomic_int live_threads;
-    std::atomic_bool started;
     
     Number operator()(Number input){
         Number output = 0;
@@ -34,7 +31,6 @@ private:
     }
     
     void compute(const Number a, const Number b, Number tol, Number& I) {
-        if (!started) started = true;
         Number m = (a + b) / 2;
         Number f_a, f_b, f_m;
         
@@ -68,12 +64,11 @@ public:
     Number integrate(const Number lower, const Number upper, const Number tolerance) {
         Number I = 0;
         live_threads = 0;
-        started = false;
         
         std::thread(&Function::compute, this, lower, upper, tolerance, std::ref(I)).detach();
         ++live_threads;
 
-        while (live_threads || !started) {
+        while (live_threads) {
             std::this_thread::sleep_for(std::chrono::milliseconds(live_threads));
         }
 

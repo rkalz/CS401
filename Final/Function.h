@@ -5,20 +5,17 @@
 #include <type_traits>
 #include <math.h>
 #include <mutex>
-#include <vector>
-#include <utility>
 #include <chrono>
-#include <queue>
 
 template <typename Number>
-static void compute(const std::function<Number(const Number)> func, const Number a, const Number b, const Number tol, Number& I, std::atomic_int& live_threads, std::mutex& output_lock) {
-    Number m = (a+b)/2;
-    Number f_a = func(a);
-    Number f_b = func(b);
-    Number f_m = func(m);
+static void compute(const std::function<Number(const Number)> func, const double a, const double b, const double tol, double& I, std::atomic_int& live_threads, std::mutex& output_lock) {
+    double m = (a+b)/2;
+    double f_a = func(a);
+    double f_b = func(b);
+    double f_m = func(m);
     
-    Number I1 = ((b - a) / 2)*(f_a + f_b);
-    Number I2 = ((b - a) / 4)*(f_a + 2 * f_m + f_b);
+    double I1 = ((b - a) / 2)*(f_a + f_b);
+    double I2 = ((b - a) / 4)*(f_a + 2 * f_m + f_b);
     
     if (abs(I1 - I2) < 3 * (b - a) * tol) {
         {
@@ -36,7 +33,9 @@ static void compute(const std::function<Number(const Number)> func, const Number
 
 template <typename Number>
 static Number integrate(const std::function<Number(const Number)> func, const Number lower, const Number upper, const Number tol) {
-    Number I = 0;
+    static_assert(std::is_integral<Number>::value || std::is_floating_point<Number>::value, "Type must be numeric\n");
+    
+    double I = 0;
     std::atomic_int live_threads;
     live_threads = 0;
     

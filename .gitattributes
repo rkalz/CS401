@@ -4,3 +4,4 @@
 *.erl linguist-language=Erlang
 *.cpp linguist-language=C++
 *.h linguist-language=C++
+*.scala linguist-language=Scala

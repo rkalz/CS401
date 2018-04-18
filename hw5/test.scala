@@ -1,0 +1,1 @@
+val test = new TypeChecker("vars.in")

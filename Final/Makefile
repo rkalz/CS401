@@ -10,7 +10,7 @@ endif
 all: build run clean
 
 build:
-	$(CXX) $(CFLAGS) CS401Final.cpp -o CS401Final
+	$(CXX) $(CXXFLAGS) CS401Final.cpp -o CS401Final
 
 clean:
 	rm CS401Final
